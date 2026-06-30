@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUNTECH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #f5f0eb; color: #111; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
+
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 22px 48px; display: flex; align-items: center; justify-content: space-between; mix-blend-mode: difference; }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:5px; color:#fff; text-decoration:none; }
+.nav-links { display:flex; gap:36px; list-style:none; }
+.nav-links a { font-size:13px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:#fff; text-decoration:none; transition:color 0.2s; }
+.nav-links a:hover { color:#ff6b2b; }
+
+#hero { position: relative; height: 100vh; min-height: 600px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.hero-bg { position: absolute; inset: 0; background-image: url('https://images.unsplash.com/photo-1594882645126-14020914d58d?w=1600&q=85&fit=crop'); background-size: cover; background-position: center 30%; transform: scale(1.05); will-change: transform; }
+.hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(20,12,5,0.55) 0%, rgba(180,70,10,0.25) 50%, rgba(255,120,40,0.15) 100%); }
+.hero-content { position: relative; z-index: 10; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.hero-eyebrow { font-size: 12px; font-weight: 500; letter-spacing: 5px; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 16px; opacity: 0; animation: fadeUp 0.8s ease 0.4s forwards; }
+.hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(110px, 20vw, 260px); line-height: 0.88; letter-spacing: 8px; color: #fff; transform-origin: center center; will-change: transform, opacity; opacity: 0; animation: titleReveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.2s forwards; text-shadow: 0 4px 40px rgba(0,0,0,0.2); user-select: none; }
+.hero-title-wrap { position: relative; display: inline-block; }
+.hero-title-wrap::after { content: ''; position: absolute; bottom: 6px; left: 0; right: 0; height: 5px; background: #ff6b2b; transform: scaleX(0); transform-origin: left; animation: lineReveal 0.8s ease 1.4s forwards; }
+.hero-slogan { font-size: clamp(15px, 2vw, 20px); font-weight: 300; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.85); margin-top: 20px; opacity: 0; animation: fadeUp 0.8s ease 1.0s forwards; }
+.hero-slogan em { color: #ff6b2b; font-style: normal; font-weight: 500; }
+.hero-cta { margin-top: 44px; opacity: 0; animation: fadeUp 0.8s ease 1.3s forwards; }
+.btn-hero { display: inline-block; padding: 16px 48px; background: #ff6b2b; color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; text-decoration: none; border-radius: 60px; box-shadow: 0 8px 32px rgba(255,107,43,0.45); transition: transform 0.2s, box-shadow 0.2s; }
+.btn-hero:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(255,107,43,0.55); }
+.hero-stats { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(to top, rgba(10,5,0,0.6) 0%, transparent 100%); opacity: 0; animation: fadeUp 0.8s ease 1.6s forwards; }
+.stat-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: #fff; line-height: 1; }
+.stat-label { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+.stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.15); }
+.scroll-hint { position: absolute; bottom: 110px; left: 49.5%; transform: translateX(-50%); z-index: 10; opacity: 0; animation: fadeUp 0.8s ease 2s forwards; }
+.scroll-arrow { width: 24px; height: 24px; border-right: 2px solid rgba(255,255,255,0.6); border-bottom: 2px solid rgba(255,255,255,0.6); transform: rotate(45deg); animation: scrollBounce 1.6s ease infinite; }
+
+.hist-track { height: 600vh; position: relative; background: #060606; }
+.hist-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.hist-flow { display: flex; height: 100%; width: 500%; will-change: transform; }
+.hist-scene { width: 20%; height: 100%; position: relative; display: flex; align-items: center; padding: 0 10vw; overflow: hidden; }
+.hist-scene-1 { background: radial-gradient(ellipse at 70% 50%, #14241a, #060606 65%); }
+.hist-scene-2 { background: radial-gradient(ellipse at 70% 50%, #16301f, #060606 65%); }
+.hist-scene-3 { background: radial-gradient(ellipse at 70% 50%, #2a2410, #060606 65%); }
+.hist-scene-4 { background: radial-gradient(ellipse at 70% 50%, #2e1c0a, #060606 65%); }
+.hist-scene-5 { background: radial-gradient(ellipse at 70% 50%, #3a1600, #060606 65%); }
+.hist-scene-text { max-width: 560px; z-index: 5; }
+.hist-scene-period { display:inline-block; font-size: 12px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: #ff6b2b; margin-bottom: 20px; padding: 6px 16px; border:1px solid rgba(255,107,43,0.3); border-radius:40px; }
+.hist-scene-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 8vw, 120px); line-height: 0.92; letter-spacing: 2px; color: #fff; margin-bottom: 28px; }
+.hist-scene-text p { font-size: 18px; line-height: 1.7; color: rgba(255,255,255,0.55); max-width: 460px; font-weight: 300; }
+.hist-scene-bignum { position: absolute; left: 5vw; bottom: -10vh; font-family: 'Bebas Neue', sans-serif; font-size: 42vh; color: rgba(255,255,255,0.025); line-height: 1; pointer-events: none; z-index: 0; }
+
+.scene-tools { position: absolute; right: 9vw; top: 28%; transform: translateY(-50%); display: flex; align-items: center; gap: 24px; z-index: 4; }
+.scene-tools img { width: 90px; height: 90px; filter: drop-shadow(0 14px 36px rgba(0,0,0,0.6)); animation: toolFloat 4s ease-in-out infinite; }
+.scene-tools img:nth-child(3) { animation-delay: 0.5s; }
+.scene-tools img:nth-child(5) { animation-delay: 1s; }
+.scene-tools .arrow { font-size: 36px; color: rgba(255,140,60,0.5); animation: arrowGlow 2s ease infinite; }
+.scene-tools .big-emoji { font-size: 90px; line-height: 1; animation: toolFloat 4s ease-in-out infinite; }
+
+/* ── LOTTIE ГЕРОЙ ── */
+#heroChar { position: fixed; width: 260px; height: 260px; z-index: 56; opacity: 0; transition: opacity 0.5s, left 0.9s cubic-bezier(0.45,0,0.2,1), bottom 0.9s cubic-bezier(0.45,0,0.2,1); pointer-events: none; left: 60%; bottom: 8%; }
+#heroChar.show { opacity: 1; }
+.char-glow { position: fixed; width: 360px; height: 360px; border-radius: 50%; background: radial-gradient(circle, rgba(255,140,60,0.15), transparent 70%); z-index: 55; opacity: 0; transition: opacity 0.5s, left 0.9s, bottom 0.9s; pointer-events: none; }
+.char-glow.show { opacity: 1; }
+
+.stars { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.star { position: absolute; background: #fff; border-radius: 50%; opacity: 0; animation: twinkle 3s ease infinite; }
+.spark { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #ff8c3c; box-shadow: 0 0 8px #ff8c3c; animation: sparkFloat 5s linear infinite; }
+
+.hist-progress { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #ff6b2b, #ff3c00); width: 0%; z-index: 60; box-shadow: 0 0 16px rgba(255,107,43,0.5); }
+.hist-arrow-marker { position: fixed; bottom: 6px; left: 0%; transform: translate(-50%, 0); z-index: 61; color: #ff6b2b; font-size: 18px; opacity: 0; transition: opacity 0.4s; text-shadow: 0 0 12px rgba(255,107,43,0.8); }
+.hist-arrow-marker.show { opacity: 1; }
+.hist-tip { position: fixed; bottom: 28px; right: 48px; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.4); z-index: 60; opacity: 0; transition: opacity 0.4s; }
+.hist-tip.show { opacity: 1; }
+
+.after-history { height: 80vh; background: linear-gradient(180deg, #060606, #f5f0eb); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.after-history h2 { font-family:'Bebas Neue',sans-serif; font-size:64px; letter-spacing:3px; color:#111; }
+.after-history p { color:#888; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes titleReveal { from { opacity: 0; transform: scale(0.82) translateY(20px); filter: blur(8px); } to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); } }
+@keyframes lineReveal { to { transform: scaleX(1); } }
+@keyframes scrollBounce { 0%,100% { transform: rotate(45deg) translateY(0); opacity: 0.6; } 50% { transform: rotate(45deg) translateY(6px); opacity: 1; } }
+@keyframes toolFloat { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-18px) rotate(2deg); } }
+@keyframes arrowGlow { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes twinkle { 0%,100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes sparkFloat { 0% { transform: translate(0,0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px,-120px); opacity: 0; } }
+/* ════ ПРИЛОЖЕНИЕ ════ */
+.app-section { position: relative; background: linear-gradient(180deg, #f5f0eb 0%, #eef3ee 50%, #f5f0eb 100%); padding: 140px 0 120px; overflow: hidden; }
+.app-header { text-align: center; max-width: 700px; margin: 0 auto 80px; padding: 0 24px; }
+.app-eyebrow { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: #2e9e5b; margin-bottom: 18px; padding: 6px 18px; border: 1px solid rgba(46,158,91,0.3); border-radius: 40px; }
+.app-h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 8vw, 110px); line-height: 0.95; letter-spacing: 3px; color: #111; margin-bottom: 20px; }
+.app-h2 em { color: #2e9e5b; font-style: normal; }
+.app-sub { font-size: 18px; line-height: 1.7; color: #777; font-weight: 300; }
+
+.app-showcase { position: relative; max-width: 1300px; margin: 0 auto 140px; min-height: 720px; display: flex; align-items: center; justify-content: center; }
+
+.app-phone { position: relative; width: 300px; height: 620px; background: #1a1a1a; border-radius: 44px; padding: 12px; box-shadow: 0 40px 90px rgba(0,0,0,0.25), 0 0 0 2px rgba(46,158,91,0.2); z-index: 10; }
+.app-phone-cam { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: #000; border-radius: 50%; z-index: 5; box-shadow: 0 0 0 3px #1a1a1a; }
+.app-phone-screen { width: 100%; height: 100%; border-radius: 32px; overflow: hidden; background: #f0f5f1; position: relative; display: flex; flex-direction: column; }
+.ph-top { background: #2e9e5b; color: #fff; text-align: center; padding: 18px 16px 14px; font-family: 'Bebas Neue', sans-serif; letter-spacing: 4px; font-size: 18px; }
+.ph-body { flex: 1; position: relative; overflow: hidden; }
+.ph-view { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; transform: translateX(20px); transition: opacity 0.4s, transform 0.4s; pointer-events: none; }
+.ph-view.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+.ph-map { flex: 1; background: linear-gradient(135deg, #dde8dd, #c8dcc8); position: relative; overflow: hidden; }
+.ph-zone-fill { position: absolute; border: 2px solid; border-radius: 10px; animation: zoneGrow 0.6s ease; }
+@keyframes zoneGrow { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.ph-route { position: absolute; top: 35%; left: 22%; width: 50%; height: 28%; border: 2px dashed #2ecc71; border-radius: 20px 8px; border-bottom: none; border-right: none; }
+.ph-dot { position: absolute; top: 48%; left: 42%; width: 14px; height: 14px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 0 6px rgba(46,204,113,0.3); animation: dotPulse 1.5s ease infinite; }
+@keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 6px rgba(46,204,113,0.3); } 50% { box-shadow: 0 0 0 12px rgba(46,204,113,0.1); } }
+
+.ph-hint { padding: 20px; text-align: center; font-size: 12px; color: #999; }
+.ph-caption { padding: 18px 20px; background: #fff; font-size: 13px; line-height: 1.6; color: #666; border-top: 1px solid #eee; }
+.ph-caption b { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: #2e9e5b; margin-bottom: 6px; }
+
+.ph-list { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #f0f5f1; }
+.ph-rank-row { display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); animation: rowIn 0.4s ease backwards; }
+.ph-rank-row:nth-child(2){animation-delay:0.05s}.ph-rank-row:nth-child(3){animation-delay:0.1s}.ph-rank-row:nth-child(4){animation-delay:0.15s}.ph-rank-row:nth-child(5){animation-delay:0.2s}
+@keyframes rowIn { from { opacity:0; transform:translateX(20px);} to {opacity:1;transform:translateX(0);} }
+.ph-medal { font-size: 18px; width: 24px; text-align: center; font-weight: bold; color: #999; }
+.ph-name { flex: 1; font-weight: 600; font-size: 14px; color: #333; }
+.ph-km { font-size: 13px; color: #2e9e5b; font-weight: 600; }
+
+.ph-socials { flex: 1; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; background: #f0f5f1; align-content: center; }
+.ph-soc { background: #fff; border-radius: 16px; padding: 20px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); animation: socIn 0.4s ease backwards; }
+.ph-soc:nth-child(2){animation-delay:0.08s}.ph-soc:nth-child(3){animation-delay:0.16s}.ph-soc:nth-child(4){animation-delay:0.24s}
+@keyframes socIn { from {opacity:0;transform:scale(0.8);} to {opacity:1;transform:scale(1);} }
+.ph-soc span { font-size: 12px; color: #555; font-weight: 600; }
+
+.ph-anticheat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg,#ffeaea,#ffd5d5); padding: 30px; }
+.ph-x { width: 80px; height: 80px; border-radius: 50%; background: #e74c3c; color: #fff; font-size: 44px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(231,76,60,0.4); animation: xPop 0.5s ease; }
+@keyframes xPop { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.ph-warn { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; color: #e74c3c; margin-bottom: 8px; }
+.ph-warn-sub { font-size: 14px; color: #c0392b; text-align: center; }
+
+.ph-speed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0f5f1; position: relative; }
+.ph-gauge { width: 180px; height: 180px; }
+.ph-gauge-fill { animation: gaugeFill 1.2s ease; }
+@keyframes gaugeFill { from { stroke-dashoffset: 314; } to { stroke-dashoffset: 90; } }
+.ph-speed-num { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: #ff6b2b; display: flex; flex-direction: column; align-items: center; }
+.ph-speed-num span { font-size: 14px; color: #999; font-family: 'Space Grotesk'; }
+
+.ph-tabs { display: flex; justify-content: space-around; padding: 14px 0; background: #fff; border-top: 1px solid #eee; }
+.ph-tabs span { font-size: 20px; opacity: 0.4; }
+.ph-tabs span.on { opacity: 1; }
+
+.app-feat { position: absolute; width: 240px; background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 18px; padding: 22px; z-index: 8; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+.app-feat:hover { transform: translateY(-6px) scale(1.03); border-color: rgba(46,158,91,0.4); box-shadow: 0 16px 44px rgba(46,158,91,0.15); }
+.app-feat.active { border-color: #2e9e5b; box-shadow: 0 16px 44px rgba(46,158,91,0.25); }
+.app-feat-ico { font-size: 32px; margin-bottom: 12px; }
+.app-feat-t { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: #111; margin-bottom: 8px; }
+.app-feat-d { font-size: 12px; line-height: 1.6; color: #888; margin-bottom: 12px; }
+.app-feat-tap { font-size: 11px; font-weight: 600; letter-spacing: 1px; color: #2e9e5b; text-transform: uppercase; }
+.app-feat.f1 { top: 4%; left: 6%; }
+.app-feat.f2 { top: 36%; left: 0%; }
+.app-feat.f3 { bottom: 6%; left: 8%; }
+.app-feat.f4 { top: 4%; right: 6%; }
+.app-feat.f5 { top: 36%; right: 0%; }
+.app-feat.f6 { bottom: 6%; right: 8%; }
+
+.app-tabs-section { max-width: 1200px; margin: 0 auto 120px; padding: 0 48px; }
+.app-tabs-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 5vw, 64px); letter-spacing: 2px; color: #111; text-align: center; margin-bottom: 56px; }
+.app-tabs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.app-tab-card { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 36px 28px; position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
+.app-tab-card:hover { transform: translateY(-8px); border-color: rgba(46,158,91,0.3); }
+.app-tab-num { position: absolute; top: 16px; right: 20px; font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: rgba(0,0,0,0.04); }
+.app-tab-ico { font-size: 40px; margin-bottom: 20px; }
+.app-tab-card h4 { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: #2e9e5b; margin-bottom: 14px; }
+.app-tab-card p { font-size: 14px; line-height: 1.7; color: #777; }
+
+.app-cta { text-align: center; padding: 0 24px; }
+.app-cta h3 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 6vw, 72px); letter-spacing: 2px; color: #111; margin-bottom: 32px; }
+.app-cta-btn { display: inline-block; background: #2e9e5b; color: #fff; padding: 20px 56px; border-radius: 50px; font-size: 15px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; box-shadow: 0 12px 40px rgba(46,158,91,0.35); transition: transform 0.2s, box-shadow 0.2s; }
+.app-cta-btn:hover { transform: translateY(-3px); box-shadow: 0 18px 50px rgba(46,158,91,0.45); }
+.app-cta-note { margin-top: 20px; font-size: 13px; color: #999; letter-spacing: 1px; }
+/* ════ СТАТИСТИКА — кинематографичная ════ */
+.stats-section { position: relative; background: #efe8df; padding: 160px 0 130px; overflow: hidden; }
+.stats-photo-bg { position: absolute; inset: 0; background-image: url('https://images.unsplash.com/photo-1502904550040-7534597429ae?w=1600&q=80'); background-size: cover; background-position: center 35%; filter: blur(8px) saturate(1.1); transform: scale(1.1); opacity: 0.28; will-change: transform; }
+.stats-photo-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(239,232,223,0.85) 0%, rgba(239,232,223,0.7) 40%, rgba(239,232,223,0.88) 100%); }
+.stats-orb { position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; will-change: transform; }
+.stats-orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,107,43,0.25), transparent 70%); top: 10%; left: -5%; }
+.stats-orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(46,158,91,0.18), transparent 70%); bottom: 5%; right: -8%; }
+
+.stats-header { text-align: center; max-width: 720px; margin: 0 auto 70px; padding: 0 24px; position: relative; z-index: 3; }
+.stats-eyebrow { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: #ff6b2b; margin-bottom: 18px; padding: 7px 20px; background: rgba(255,107,43,0.08); border: 1px solid rgba(255,107,43,0.25); border-radius: 40px; backdrop-filter: blur(10px); }
+.stats-h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 9vw, 130px); line-height: 0.92; letter-spacing: 3px; color: #1a1a1a; margin-bottom: 22px; text-shadow: 0 2px 30px rgba(255,255,255,0.5); }
+.stats-h2 em { color: #ff6b2b; font-style: normal; }
+.stats-sub { font-size: 18px; line-height: 1.7; color: #5a5a5a; font-weight: 400; margin-bottom: 24px; }
+.stats-date { display: inline-block; font-size: 13px; letter-spacing: 2px; color: #777; padding: 9px 22px; background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.06); border-radius: 30px; text-transform: capitalize; backdrop-filter: blur(10px); }
+
+.stats-grid { max-width: 1200px; margin: 0 auto 44px; padding: 0 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; position: relative; z-index: 3; }
+.stat-card { position: relative; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.8); border-radius: 26px; padding: 44px 32px; text-align: center; overflow: hidden; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s; box-shadow: 0 10px 40px rgba(0,0,0,0.06); }
+.stat-card:hover { transform: translateY(-12px); box-shadow: 0 24px 60px rgba(255,107,43,0.18); }
+.stat-card-glow { position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; background: radial-gradient(circle, rgba(255,107,43,0.3), transparent 70%); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+.stat-card:hover .stat-card-glow { opacity: 1; }
+.stat-card--today { background: linear-gradient(135deg, rgba(255,107,43,0.15), rgba(255,255,255,0.5)); border-color: rgba(255,107,43,0.3); }
+.stat-card-ico { font-size: 44px; margin-bottom: 22px; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.12)); position: relative; z-index: 2; }
+.stat-card-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 6.5vw, 84px); line-height: 1; letter-spacing: 2px; color: #ff6b2b; margin-bottom: 14px; position: relative; z-index: 2; text-shadow: 0 4px 20px rgba(255,107,43,0.2); }
+.stat-card-label { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #777; position: relative; z-index: 2; }
+
+.stats-status { text-align: center; font-size: 13px; letter-spacing: 1px; color: #888; margin-bottom: 110px; position: relative; z-index: 3; }
+.stats-live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ff6b2b; margin-right: 8px; animation: liveDot 1.5s ease infinite; }
+@keyframes liveDot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
+.stats-status.ok .stats-live-dot { background: #2ecc71; }
+.stats-status.err .stats-live-dot { background: #e74c3c; animation: none; }
+
+.online-block { max-width: 1200px; margin: 0 auto; padding: 56px 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 3; background: rgba(10,10,15,0.92); border-radius: 32px; box-shadow: 0 30px 80px rgba(0,0,0,0.2); }
+.online-eyebrow { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #00e5ff; margin-bottom: 18px; }
+.online-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 6vw, 84px); line-height: 0.95; letter-spacing: 2px; color: #fff; margin-bottom: 24px; }
+.online-desc { font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.6); margin-bottom: 32px; font-weight: 300; }
+.online-btn { display: inline-block; background: transparent; color: #00e5ff; padding: 16px 40px; border: 1px solid rgba(0,229,255,0.4); border-radius: 50px; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: all 0.25s; }
+.online-btn:hover { background: #00e5ff; color: #060606; box-shadow: 0 8px 30px rgba(0,229,255,0.4); transform: translateY(-2px); }
+
+.online-preview { background: #0a0a0f; border: 1px solid rgba(0,229,255,0.15); border-radius: 20px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.online-preview-top { font-size: 12px; letter-spacing: 2px; color: #00e5ff; margin-bottom: 24px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.online-preview-live { width: 8px; height: 8px; border-radius: 50%; background: #00e5ff; animation: liveDot 1.2s ease infinite; }
+.online-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.online-chart { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; }
+.oc-label { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+.online-chart svg { width: 100%; height: 40px; }
+.online-chart polyline { stroke-dasharray: 200; stroke-dashoffset: 200; animation: drawLine 2s ease forwards; }
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+.online-chart svg { width: 100%; height: 40px; }
+/* ════ ФУТЕР ════ */
+.footer { position: relative; background: #060606; padding: 120px 0 50px; overflow: hidden; }
+.footer-glow { position: absolute; top: -10%; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse, rgba(255,107,43,0.12), transparent 70%); pointer-events: none; }
+.footer-top { max-width: 1200px; margin: 0 auto 80px; padding: 0 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 70px; position: relative; z-index: 2; }
+
+.footer-eyebrow { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: #ff6b2b; margin-bottom: 18px; padding: 6px 18px; border: 1px solid rgba(255,107,43,0.3); border-radius: 40px; }
+.footer-h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 7vw, 96px); line-height: 0.92; letter-spacing: 2px; color: #fff; margin-bottom: 24px; }
+.footer-h2 em { color: #ff6b2b; font-style: normal; }
+.footer-desc { font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.55); margin-bottom: 36px; font-weight: 300; max-width: 420px; }
+
+.footer-contacts { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+.footer-contact-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; text-decoration: none; transition: all 0.25s; }
+.footer-contact-item:hover { background: rgba(255,107,43,0.08); border-color: rgba(255,107,43,0.3); transform: translateX(6px); }
+.fci-ico { font-size: 24px; }
+.fci-text { display: flex; flex-direction: column; color: #fff; font-size: 15px; font-weight: 500; }
+.fci-text span { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+
+.footer-socials-label { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+.footer-soc-row { display: flex; gap: 14px; }
+.footer-soc { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; text-decoration: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); transition: all 0.25s; }
+.footer-soc:hover { transform: translateY(-5px); }
+.footer-soc.yt:hover { background: #ff0000; border-color: #ff0000; box-shadow: 0 10px 30px rgba(255,0,0,0.4); }
+.footer-soc.tt:hover { background: #000; border-color: #fff; box-shadow: 0 10px 30px rgba(255,255,255,0.2); }
+.footer-soc.tg:hover { background: #0088cc; border-color: #0088cc; box-shadow: 0 10px 30px rgba(0,136,204,0.4); }
+.footer-soc.ig:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); border-color: transparent; box-shadow: 0 10px 30px rgba(220,39,67,0.4); }
+
+/* форма */
+.footer-form-side { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; padding: 40px; }
+.footer-form { display: flex; flex-direction: column; gap: 20px; }
+.ff-row { display: flex; flex-direction: column; gap: 8px; }
+.ff-row label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.ff-row input, .ff-row select, .ff-row textarea { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; color: #fff; font-family: 'Space Grotesk'; font-size: 15px; transition: border-color 0.2s, background 0.2s; resize: none; }
+.ff-row input:focus, .ff-row select:focus, .ff-row textarea:focus { outline: none; border-color: #ff6b2b; background: rgba(255,107,43,0.05); }
+.ff-row input::placeholder, .ff-row textarea::placeholder { color: rgba(255,255,255,0.3); }
+.ff-row select { cursor: pointer; }
+.ff-row select option { background: #1a1a1a; color: #fff; }
+.ff-submit { background: #ff6b2b; color: #fff; border: none; padding: 18px; border-radius: 14px; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(255,107,43,0.35); }
+.ff-submit:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(255,107,43,0.45); }
+.ff-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.ff-status { text-align: center; font-size: 14px; padding: 4px; min-height: 20px; }
+.ff-status.ok { color: #2ecc71; }
+.ff-status.err { color: #e74c3c; }
+
+.footer-bottom { max-width: 1200px; margin: 0 auto; padding: 40px 48px 0; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2; gap: 30px; }
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 6px; color: #fff; }
+.footer-copy { font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.4); text-align: center; }
+.footer-copy span { color: rgba(255,255,255,0.6); }
+.footer-sign-img { height: 70px; opacity: 0.9; filter: brightness(1.2); }
+@media (max-width: 768px) {
+  nav { padding: 18px 24px; }
+  .nav-links { display: none; }
+  .hero-stats { padding: 20px 24px; }
+  .stat-num { font-size: 24px; }
+  .scene-tools { display: none; }
+  #heroChar, .char-glow { display: none; }
+  .hist-scene { padding: 0 6vw; }
+  .app-showcase { min-height: auto; flex-direction: column; gap: 16px; }
+  .app-feat { position: static; width: 100%; max-width: 320px; }
+  .app-tabs-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; padding: 0 24px; }
+  .online-block { grid-template-columns: 1fr; padding: 0 24px; }
+  .footer-top { grid-template-columns: 1fr; padding: 0 24px; gap: 40px; }
+  .footer-form-side { padding: 28px; }
+  .footer-bottom { flex-direction: column; padding: 30px 24px 0; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo">RUNTECH</a>
+  <ul class="nav-links">
+    <li><a href="#history">История</a></li>
+    <li><a href="#after">Приложение</a></li>
+    <li><a href="#stats">Статистика</a></li>
+    <li><a href="#contact">Контакт</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">GPS · Территория · Соревнование</div>
+    <div class="hero-title-wrap"><div class="hero-title" id="heroTitle">RUNTECH</div></div>
+    <div class="hero-slogan">Захватывай <em>чужие</em> зоны</div>
+    <div class="hero-cta"><a href="#history" class="btn-hero">Смотреть историю</a></div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-arrow"></div></div>
+  <div class="hero-stats">
+    <div class="stat-item"><span class="stat-num" id="hUsers">—</span><span class="stat-label">бегунов</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-num" id="hKm">—</span><span class="stat-label">км пробежано</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-num" id="hZones">—</span><span class="stat-label">зон захвачено</span></div>
+  </div>
+</section>
+
+<div class="char-glow" id="charGlow"></div>
+<div id="heroChar"></div>
+
+<div class="hist-track" id="histTrack">
+  <div class="hist-sticky" id="history">
+    <div class="hist-flow" id="histFlow">
+
+      <div class="hist-scene hist-scene-1">
+        <div class="hist-scene-bignum">01</div><div class="stars"></div>
+        <div class="hist-scene-text">
+          <div class="hist-scene-period">Июнь 2025 · Начало</div>
+          <h2 class="hist-scene-title">Просто<br>начал бегать</h2>
+          <p>Никакой великой цели. Я вышел на улицу и начал бегать. Так родилась идея первая идея к реальному продукту.</p>
+        </div>
+      </div>
+
+      <div class="hist-scene hist-scene-2">
+        <div class="hist-scene-bignum">02</div><div class="stars"></div>
+        <div class="hist-scene-text">
+          <div class="hist-scene-period">Июнь 2025</div>
+          <h2 class="hist-scene-title">Открыл<br>Excel</h2>
+          <p>Первый инструмент. Дата, калории, дистанция, шаги. С этой таблицы начался путь.</p>
+        </div>
+        <div class="scene-tools"><img src="https://img.icons8.com/color/240/microsoft-excel-2019--v1.png" alt="Excel"/></div>
+      </div>
+
+      <div class="hist-scene hist-scene-3">
+        <div class="hist-scene-bignum">03</div><div class="stars"></div>
+        <div class="hist-scene-text">
+          <div class="hist-scene-period">Июль — Декабрь 2025</div>
+          <h2 class="hist-scene-title">Модерни-<br>зация</h2>
+          <p>6–7 месяцев улучшений. Excel перерос в Google Sheets — облако, доступ откуда угодно.</p>
+        </div>
+        <div class="scene-tools">
+          <img src="https://img.icons8.com/color/240/microsoft-excel-2019--v1.png" alt="Excel"/>
+          <span class="arrow">→</span>
+          <img src="https://img.icons8.com/color/240/google-sheets.png" alt="Sheets"/>
+        </div>
+      </div>
+
+      <div class="hist-scene hist-scene-4">
+        <div class="hist-scene-bignum">04</div><div class="stars"></div>
+        <div class="hist-scene-text">
+          <div class="hist-scene-period">Начало 2026</div>
+          <h2 class="hist-scene-title">RunTech<br>Online</h2>
+          <p>Google Sheets → Apps Script → GitHub Pages. Живой дашборд в реальном времени.</p>
+        </div>
+        <div class="scene-tools">
+          <img src="https://img.icons8.com/color/240/google-sheets.png" alt="Sheets"/>
+          <span class="arrow">→</span>
+          <img src="https://img.icons8.com/fluency/240/source-code.png" alt="Script"/>
+          <span class="arrow">→</span>
+          <img src="https://img.icons8.com/ios-filled/240/ffffff/github.png" alt="GitHub"/>
+        </div>
+      </div>
+
+      <div class="hist-scene hist-scene-5">
+        <div class="hist-scene-bignum">05</div><div class="stars"></div>
+        <div class="hist-scene-text">
+          <div class="hist-scene-period" style="color:#ff8c5a;border-color:rgba(255,140,90,0.4)">Май 2026 · 15 дней</div>
+          <h2 class="hist-scene-title" style="color:#ff6b2b">Приложение<br>RunTech</h2>
+          <p>Финал. 15 бессонных ночей. GPS-захват, соцсеть, рейтинги, Firebase. Идея стала продуктом.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="hist-tip" id="histTip">↓ листай вниз</div>
+</div>
+
+<div class="hist-progress" id="histProgress"></div>
+<div class="hist-arrow-marker" id="histArrow">▲</div>
+
+<!-- ════ ПРИЛОЖЕНИЕ ════ -->
+<section id="after" class="app-section">
+  <div class="app-header">
+    <span class="app-eyebrow">Приложение</span>
+    <h2 class="app-h2">Внутри <em>RunTech</em></h2>
+    <p class="app-sub">Нажми на фишку — посмотри как она работает прямо в телефоне</p>
+  </div>
+
+  <div class="app-showcase">
+    <!-- ТЕЛЕФОН -->
+    <div class="app-phone">
+      <div class="app-phone-cam"></div>
+      <div class="app-phone-screen">
+        <div class="ph-top">RUNTECH</div>
+        <div class="ph-body" id="phBody">
+
+          <!-- экран по умолчанию: карта -->
+          <div class="ph-view active" data-view="default">
+            <div class="ph-map">
+              <div class="ph-route"></div>
+              <div class="ph-dot"></div>
+            </div>
+            <div class="ph-hint">← Выбери фишку слева или справа</div>
+          </div>
+
+          <!-- захват зон -->
+          <div class="ph-view" data-view="zone">
+            <div class="ph-map">
+              <div class="ph-zone-fill" style="background:rgba(46,204,113,0.35);border-color:#2ecc71;width:60%;height:45%;top:25%;left:20%"></div>
+              <div class="ph-route"></div>
+              <div class="ph-dot"></div>
+            </div>
+            <div class="ph-caption"><b>Захват зон</b>Твой маршрут закрасил территорию зелёным. Зона теперь твоя.</div>
+          </div>
+
+          <!-- перехват -->
+          <div class="ph-view" data-view="steal">
+            <div class="ph-map">
+              <svg viewBox="0 0 200 200" style="position:absolute;inset:0;width:100%;height:100%">
+                <polygon points="40,60 110,45 130,110 70,130 35,100" fill="rgba(46,204,113,0.25)" stroke="#2ecc71" stroke-width="2"/>
+                <polygon points="60,70 140,55 165,120 95,145 55,110" fill="rgba(231,76,60,0.35)" stroke="#e74c3c" stroke-width="2.5"/>
+              </svg>
+            </div>
+            <div class="ph-caption"><b>Перехват</b>Ты <span style="color:#e74c3c">красный</span> — перебежал зону соперника и забрал её себе.</div>
+          </div>
+
+          <!-- рейтинг -->
+          <div class="ph-view" data-view="rank">
+            <div class="ph-list">
+              <div class="ph-rank-row"><span class="ph-medal">🥇</span><span class="ph-name">Alex</span><span class="ph-km">42.5 км</span></div>
+              <div class="ph-rank-row"><span class="ph-medal">🥈</span><span class="ph-name">Daniel</span><span class="ph-km">38.1 км</span></div>
+              <div class="ph-rank-row"><span class="ph-medal">🥉</span><span class="ph-name">Mike</span><span class="ph-km">31.7 км</span></div>
+              <div class="ph-rank-row"><span class="ph-medal">4</span><span class="ph-name">Sophie</span><span class="ph-km">28.3 км</span></div>
+              <div class="ph-rank-row"><span class="ph-medal">5</span><span class="ph-name">James</span><span class="ph-km">25.9 км</span></div>
+            </div>
+            <div class="ph-caption"><b>Рейтинг</b>Глобальный топ бегунов по километрам. Поднимайся выше.</div>
+          </div>
+
+          <!-- соцсеть -->
+          <div class="ph-view" data-view="social">
+            <div class="ph-socials">
+              <div class="ph-soc tg">✈️<span>Telegram</span></div>
+              <div class="ph-soc ig">📷<span>Instagram</span></div>
+              <div class="ph-soc tt">🎵<span>TikTok</span></div>
+              <div class="ph-soc yt">▶️<span>YouTube</span></div>
+            </div>
+            <div class="ph-caption"><b>Соцсеть</b>Лента, лайки, подписки. Делись забегами с сообществом.</div>
+          </div>
+
+          <!-- анти-чит -->
+          <div class="ph-view" data-view="anticheat">
+            <div class="ph-anticheat">
+              <div class="ph-x">✕</div>
+              <div class="ph-warn">Слишком быстро!</div>
+              <div class="ph-warn-sub">RunTech предназначен для бега</div>
+            </div>
+          </div>
+
+          <!-- спидометр -->
+          <div class="ph-view" data-view="speed">
+            <div class="ph-speed">
+              <svg viewBox="0 0 120 120" class="ph-gauge">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#ffe0d0" stroke-width="10"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#ff6b2b" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="90" transform="rotate(-90 60 60)" class="ph-gauge-fill"/>
+              </svg>
+              <div class="ph-speed-num">98<span>ккал</span></div>
+            </div>
+            <div class="ph-caption"><b>Спидометр</b>Калории и жир считаются с анимацией как стрелка в машине.</div>
+          </div>
+
+        </div>
+        <div class="ph-tabs"><span class="on">🗺</span><span>🕐</span><span>👥</span><span>👤</span></div>
+      </div>
+    </div>
+
+    <!-- ФИШКИ -->
+    <div class="app-feat f1" data-target="zone">
+      <div class="app-feat-ico">🗺️</div>
+      <div class="app-feat-t">Захват зон</div>
+      <div class="app-feat-d">Маршрут закрашивает территорию на карте</div>
+      <div class="app-feat-tap">Нажми →</div>
+    </div>
+    <div class="app-feat f2" data-target="steal">
+      <div class="app-feat-ico">⚔️</div>
+      <div class="app-feat-t">Перехват</div>
+      <div class="app-feat-d">Перебеги чужую зону — она станет твоей</div>
+      <div class="app-feat-tap">Нажми →</div>
+    </div>
+    <div class="app-feat f3" data-target="rank">
+      <div class="app-feat-ico">🏆</div>
+      <div class="app-feat-t">Рейтинг</div>
+      <div class="app-feat-d">Глобальный топ бегунов, медали</div>
+      <div class="app-feat-tap">Нажми →</div>
+    </div>
+    <div class="app-feat f4" data-target="social">
+      <div class="app-feat-ico">📱</div>
+      <div class="app-feat-t">Соцсеть</div>
+      <div class="app-feat-d">Лента, лайки, подписки как в Instagram</div>
+      <div class="app-feat-tap">← Нажми</div>
+    </div>
+    <div class="app-feat f5" data-target="anticheat">
+      <div class="app-feat-ico">🛡️</div>
+      <div class="app-feat-t">Анти-чит</div>
+      <div class="app-feat-d">Быстрее 23 км/ч — не засчитывается</div>
+      <div class="app-feat-tap">← Нажми</div>
+    </div>
+    <div class="app-feat f6" data-target="speed">
+      <div class="app-feat-ico">🔥</div>
+      <div class="app-feat-t">Спидометр</div>
+      <div class="app-feat-d">Калории и жир с анимацией</div>
+      <div class="app-feat-tap">← Нажми</div>
+    </div>
+  </div>
+
+  <div class="app-tabs-section">
+    <h3 class="app-tabs-title">Четыре мира внутри</h3>
+    <div class="app-tabs-grid">
+      <div class="app-tab-card"><div class="app-tab-num">01</div><div class="app-tab-ico">🗺️</div><h4>Мир</h4><p>Живая карта, кнопка Старт, захват территорий бегом. Сердце приложения.</p></div>
+      <div class="app-tab-card"><div class="app-tab-num">02</div><div class="app-tab-ico">🕐</div><h4>История</h4><p>Статистика по дням, неделям, месяцам. Карточки с картой маршрута.</p></div>
+      <div class="app-tab-card"><div class="app-tab-num">03</div><div class="app-tab-ico">👥</div><h4>Community</h4><p>Лента, Рейтинг, Люди. 3D-свайп между разделами.</p></div>
+      <div class="app-tab-card"><div class="app-tab-num">04</div><div class="app-tab-ico">👤</div><h4>Я</h4><p>Профиль в стиле Instagram. Фото, подписчики, цвет зоны.</p></div>
+    </div>
+  </div>
+
+  <div class="app-cta">
+    <h3>Готов захватить свой район?</h3>
+    <a href="#" class="app-cta-btn">Скачать RunTech</a>
+    <p class="app-cta-note">Вход через Google в один тап · Бесплатно</p>
+  </div>
+</section>
+<!-- ════ СТАТИСТИКА + RUNTECH ONLINE ════ -->
+<section id="stats" class="stats-section">
+  <div class="stats-photo-bg"></div>
+  <div class="stats-photo-veil"></div>
+  <div class="stats-orb stats-orb-1"></div>
+  <div class="stats-orb stats-orb-2"></div>
+
+  <div class="stats-header">
+    <span class="stats-eyebrow">Статистика · Live</span>
+    <h2 class="stats-h2">RunTech в <em>цифрах</em></h2>
+    <p class="stats-sub">Реальные данные из приложения — живые, считаются в этот момент</p>
+    <div class="stats-date" id="statsDate">—</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card" data-tilt>
+      <div class="stat-card-glow"></div>
+      <div class="stat-card-ico">👥</div>
+      <div class="stat-card-num" id="stUsers">0</div>
+      <div class="stat-card-label">Бегунов</div>
+    </div>
+    <div class="stat-card" data-tilt>
+      <div class="stat-card-glow"></div>
+      <div class="stat-card-ico">📏</div>
+      <div class="stat-card-num" id="stKm">0</div>
+      <div class="stat-card-label">Км пробежано</div>
+    </div>
+    <div class="stat-card" data-tilt>
+      <div class="stat-card-glow"></div>
+      <div class="stat-card-ico">🏃</div>
+      <div class="stat-card-num" id="stRuns">0</div>
+      <div class="stat-card-label">Забегов</div>
+    </div>
+    <div class="stat-card" data-tilt>
+      <div class="stat-card-glow"></div>
+      <div class="stat-card-ico">🗺️</div>
+      <div class="stat-card-num" id="stZones">0</div>
+      <div class="stat-card-label">Зон захвачено</div>
+    </div>
+    <div class="stat-card" data-tilt>
+      <div class="stat-card-glow"></div>
+      <div class="stat-card-ico">📐</div>
+      <div class="stat-card-num" id="stArea">0</div>
+      <div class="stat-card-label">Км² территории</div>
+    </div>
+    <div class="stat-card stat-card--today" data-tilt>
+      <div class="stat-card-glow"></div>
+      <div class="stat-card-ico">⚡</div>
+      <div class="stat-card-num" id="stToday">0</div>
+      <div class="stat-card-label">Км сегодня</div>
+    </div>
+  </div>
+
+  <div class="stats-status" id="statsStatus">
+    <span class="stats-live-dot"></span> Подключение к Firebase...
+  </div>
+
+  <!-- RUNTECH ONLINE -->
+  <div class="online-block">
+    <div class="online-left">
+      <span class="online-eyebrow">— RunTech Online · откуда всё началось</span>
+      <h3 class="online-title">Самый первый<br>дашборд</h3>
+      <p class="online-desc">Живой Activity Monitor с графиками калорий, дистанции, шагов и сожжённого жира. Данные из Google Sheets обновляются в реальном времени. Это была первая версия RunTech — до приложения.</p>
+      <a href="https://khusaneldorov.github.io/runtech/" target="_blank" class="online-btn">Открыть RunTech Online →</a>
+    </div>
+    <div class="online-right">
+      <div class="online-preview">
+        <div class="online-preview-top"><span class="online-preview-live"></span> ACTIVITY MONITOR // DATA STREAM</div>
+        <div class="online-charts">
+          <div class="online-chart"><div class="oc-label">CALORIES</div><svg viewBox="0 0 100 40"><polyline points="0,30 15,10 30,25 45,15 60,28 75,8 100,20" fill="none" stroke="#c77dff" stroke-width="2.5"/></svg></div>
+          <div class="online-chart"><div class="oc-label">DISTANCE</div><svg viewBox="0 0 100 40"><polyline points="0,25 15,15 30,30 45,10 60,22 75,18 100,12" fill="none" stroke="#00e5ff" stroke-width="2.5"/></svg></div>
+          <div class="online-chart"><div class="oc-label">STEPS</div><svg viewBox="0 0 100 40"><polyline points="0,20 15,28 30,8 45,25 60,15 75,30 100,18" fill="none" stroke="#ff8c00" stroke-width="2.5"/></svg></div>
+          <div class="online-chart"><div class="oc-label">FAT BURN</div><svg viewBox="0 0 100 40"><polyline points="0,28 15,12 30,22 45,18 60,8 75,25 100,15" fill="none" stroke="#7fff00" stroke-width="2.5"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ════ ФУТЕР / КОНТАКТЫ ════ -->
+<footer id="contact" class="footer">
+  <div class="footer-glow"></div>
+
+  <div class="footer-top">
+    <div class="footer-cta-side">
+      <span class="footer-eyebrow">Контакты · Поддержка</span>
+      <h2 class="footer-h2">Свяжись<br>с <em>нами</em></h2>
+      <p class="footer-desc">Вопрос, идея, нашёл баг или хочешь сотрудничать? Напиши прямо здесь — мы получим заявку и ответим.</p>
+
+      <div class="footer-contacts">
+        <a href="mailto:runtech.app@gmail.com" class="footer-contact-item">
+          <div class="fci-ico">✉️</div>
+          <div class="fci-text"><span>Почта</span>runtech.app@gmail.com</div>
+        </a>
+        <a href="https://t.me/Runtech_support" target="_blank" class="footer-contact-item">
+          <div class="fci-ico">💬</div>
+          <div class="fci-text"><span>Telegram поддержка</span>@Runtech_support</div>
+        </a>
+      </div>
+
+      <div class="footer-socials">
+        <span class="footer-socials-label">Следи за проектом</span>
+        <div class="footer-soc-row">
+          <a href="https://www.youtube.com/@Runtechapp" target="_blank" class="footer-soc yt" title="YouTube">▶</a>
+          <a href="https://www.tiktok.com/@runtechapp" target="_blank" class="footer-soc tt" title="TikTok">♪</a>
+          <a href="https://t.me/Runtech_app" target="_blank" class="footer-soc tg" title="Telegram">✈</a>
+          <a href="https://www.instagram.com/runtech.app" target="_blank" class="footer-soc ig" title="Instagram">◉</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-form-side">
+      <form class="footer-form" id="contactForm">
+        <div class="ff-row">
+          <label>Ваше имя (ФИО)</label>
+          <input type="text" name="name" required placeholder="Иван Иванов">
+        </div>
+        <div class="ff-row">
+          <label>Email для ответа</label>
+          <input type="email" name="email" required placeholder="you@example.com">
+        </div>
+        <div class="ff-row">
+          <label>Тема обращения</label>
+          <select name="subject" required>
+            <option value="">Выбери тему</option>
+            <option value="Поддержка">Техническая поддержка</option>
+            <option value="Баг">Нашёл баг</option>
+            <option value="Сотрудничество">Сотрудничество</option>
+            <option value="Идея">Идея / предложение</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+        <div class="ff-row">
+          <label>Сообщение</label>
+          <textarea name="message" required rows="4" placeholder="Опиши свой вопрос..."></textarea>
+        </div>
+        <button type="submit" class="ff-submit" id="ffSubmit">Отправить заявку</button>
+        <div class="ff-status" id="ffStatus"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-logo">RUNTECH</div>
+    <div class="footer-copy">
+      © 2026 RunTech. Все права защищены.<br>
+      <span>CEO проекта · Элдоров Х.Э.</span>
+    </div>
+    <div class="footer-sign">
+      <img src="podpis.jpg" alt="подпись" class="footer-sign-img">
+    </div>
+  </div>
+</footer>
+
+<script>
+const heroTitle = document.getElementById('heroTitle');
+const heroBg = document.getElementById('heroBg');
+window.addEventListener('scroll', () => {
+  const p = Math.min(window.scrollY / window.innerHeight, 1);
+  heroTitle.style.transform = `scale(${1 + p * 2.5})`;
+  heroTitle.style.opacity = Math.max(0, 1 - p * 1.8);
+  heroBg.style.transform = `scale(1.05) translateY(${window.scrollY * 0.25}px)`;
+}, { passive: true });
+// параллакс фото бегуна в статистике
+const statsPhotoBg = document.querySelector('.stats-photo-bg');
+const statsOrb1 = document.querySelector('.stats-orb-1');
+const statsOrb2 = document.querySelector('.stats-orb-2');
+window.addEventListener('scroll', () => {
+  const statsSec = document.getElementById('stats');
+  if (!statsSec) return;
+  const rect = statsSec.getBoundingClientRect();
+  if (rect.top < window.innerHeight && rect.bottom > 0) {
+    const offset = (window.innerHeight - rect.top) * 0.08;
+    if (statsPhotoBg) statsPhotoBg.style.transform = `scale(1.1) translateY(${offset}px)`;
+    if (statsOrb1) statsOrb1.style.transform = `translateY(${offset * 0.6}px)`;
+    if (statsOrb2) statsOrb2.style.transform = `translateY(${-offset * 0.5}px)`;
+  }
+}, { passive: true });
+
+document.querySelectorAll('.stars').forEach(c => {
+  for (let i = 0; i < 30; i++) { const s = document.createElement('div'); s.className='star'; const sz=Math.random()*2+1; s.style.width=sz+'px'; s.style.height=sz+'px'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=Math.random()*3+'s'; c.appendChild(s); }
+  for (let i = 0; i < 10; i++) { const sp=document.createElement('div'); sp.className='spark'; sp.style.left=(55+Math.random()*35)+'%'; sp.style.top=(30+Math.random()*40)+'%'; sp.style.animationDelay=Math.random()*5+'s'; c.appendChild(sp); }
+});
+
+// ── LOTTIE ГЕРОЙ ──
+const charBox = document.getElementById('heroChar');
+const charGlow = document.getElementById('charGlow');
+
+// анимации героя по этапам (Lottie публичные)
+const charAnims = [
+  'https://lottie.host/4db68bbd-31f6-4cd8-84eb-189de081159a/IGmMCqhzpt.json', // бег
+  'https://lottie.host/c9c5e7e9-e6f6-4f4f-8c9e-0e7c4e4e4e4e/coding.json',      // кодинг (запасной ниже)
+];
+
+// надёжные публичные lottie
+const ANIMS = {
+  run: 'https://assets10.lottiefiles.com/packages/lf20_x62chJ.json',
+  code: 'https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json',
+  data: 'https://assets10.lottiefiles.com/packages/lf20_qp1q7mct.json',
+  win: 'https://assets10.lottiefiles.com/packages/lf20_touohxv0.json'
+};
+
+let lottieAnim = null;
+let currentKey = '';
+function loadChar(key) {
+  if (key === currentKey) return;
+  currentKey = key;
+  if (lottieAnim) lottieAnim.destroy();
+  lottieAnim = lottie.loadAnimation({
+    container: charBox,
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    path: ANIMS[key]
+  });
+}
+loadChar('run');
+
+// позиции героя по сценам (left%, bottom%)
+const charPositions = [
+  { left: '58%', bottom: '10%' }, // сцена 1 — бег (пустая зона справа-низ)
+  { left: '58%', bottom: '8%' },  // сцена 2 — excel (низ, не на текст)
+  { left: '40%', bottom: '6%' },  // сцена 3 — sheets (центр-низ)
+  { left: '55%', bottom: '8%' },  // сцена 4 — online (низ)
+  { left: '42%', bottom: '6%' }   // сцена 5 — победа (центр-низ)
+];
+
+const histTrack = document.getElementById('histTrack');
+const histFlow = document.getElementById('histFlow');
+const histProgress = document.getElementById('histProgress');
+const histArrow = document.getElementById('histArrow');
+const histTip = document.getElementById('histTip');
+
+window.addEventListener('scroll', () => {
+  const rect = histTrack.getBoundingClientRect();
+  const scrollable = histTrack.offsetHeight - window.innerHeight;
+  const scrolled = Math.min(Math.max(-rect.top, 0), scrollable);
+  const p = scrollable > 0 ? scrolled / scrollable : 0;
+
+  const maxShift = histFlow.scrollWidth - window.innerWidth;
+  histFlow.style.transform = `translateX(${-p * maxShift}px)`;
+  histProgress.style.width = (p * 100) + '%';
+  histArrow.style.left = (p * 100) + '%';
+
+  const inside = rect.top <= 0 && rect.bottom >= window.innerHeight;
+  histArrow.classList.toggle('show', inside);
+  histTip.classList.toggle('show', inside && p < 0.95);
+  charBox.classList.toggle('show', inside);
+  charGlow.classList.toggle('show', inside);
+
+  // какой этап (0-4)
+  const stage = Math.min(Math.floor(p * 5), 4);
+  // действие героя
+  if (stage === 0) loadChar('run');
+  else if (stage === 1) loadChar('code');
+  else if (stage === 2) loadChar('data');
+  else if (stage === 3) loadChar('code');
+  else loadChar('win');
+
+  // двигаем героя
+  const pos = charPositions[stage];
+  charBox.style.left = pos.left;
+  charBox.style.bottom = pos.bottom;
+  charGlow.style.left = `calc(${pos.left} - 20px)`;
+  charGlow.style.bottom = `calc(${pos.bottom} - 20px)`;
+}, { passive: true });
+// ПРИЛОЖЕНИЕ — интерактивные фишки
+document.querySelectorAll('.app-feat').forEach(feat => {
+  feat.addEventListener('click', () => {
+    const target = feat.dataset.target;
+    document.querySelectorAll('.app-feat').forEach(f => f.classList.remove('active'));
+    feat.classList.add('active');
+    document.querySelectorAll('.ph-view').forEach(v => v.classList.remove('active'));
+    const view = document.querySelector(`.ph-view[data-view="${target}"]`);
+    if (view) {
+      // перезапуск анимаций
+      view.classList.add('active');
+    }
+  });
+});
+// ════ FIREBASE — живая статистика ════
+const firebaseConfig = {
+  apiKey: "AIzaSyA9zdhqVx9fU6iDmHupl7uOJxEoW14qOo4",
+  authDomain: "runtech-e8cb3.firebaseapp.com",
+  projectId: "runtech-e8cb3",
+  storageBucket: "runtech-e8cb3.firebasestorage.app",
+  messagingSenderId: "785526915205",
+  appId: "1:785526915205:web:3dcb9e2b4483bb46b2a9ec"
+};
+
+// текущая дата красиво
+const dateEl = document.getElementById('statsDate');
+const today = new Date();
+dateEl.textContent = today.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+// анимация числа
+function animateNum(el, target, decimals = 0) {
+  let v = 0;
+  const start = performance.now();
+  const dur = 1500;
+  function tick(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const cur = target * eased;
+    el.textContent = decimals ? cur.toFixed(decimals) : Math.round(cur).toLocaleString('ru-RU');
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// площадь полигона по координатам (формула шнурков, в км²)
+function polygonAreaKm2(points) {
+  if (!points || points.length < 3) return 0;
+  const R = 6371; // радиус земли км
+  let area = 0;
+  for (let i = 0; i < points.length; i++) {
+    const j = (i + 1) % points.length;
+    const lat1 = points[i].lat * Math.PI / 180;
+    const lat2 = points[j].lat * Math.PI / 180;
+    const lng1 = points[i].lng * Math.PI / 180;
+    const lng2 = points[j].lng * Math.PI / 180;
+    area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+  }
+  area = Math.abs(area * R * R / 2);
+  return area;
+}
+
+const statusEl = document.getElementById('statsStatus');
+
+(async function loadStats() {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // users
+    const usersSnap = await db.collection('users').get();
+    let totalKm = 0, totalRuns = 0;
+    const userCount = usersSnap.size;
+    usersSnap.forEach(doc => {
+      const d = doc.data();
+      totalKm += (d.totalKm || 0);
+      totalRuns += (d.runs || 0);
+    });
+
+    // zones
+    const zonesSnap = await db.collection('zones').get();
+    const zoneCount = zonesSnap.size;
+    let totalArea = 0;
+    zonesSnap.forEach(doc => {
+      const d = doc.data();
+      if (d.points && Array.isArray(d.points)) {
+        const pts = d.points.map(p => ({ lat: p.lat || p.latitude || 0, lng: p.lng || p.longitude || 0 }));
+        totalArea += polygonAreaKm2(pts);
+      }
+    });
+
+    // сегодня — из community_posts по дате
+    const todayStr = `${today.getDate()}.${today.getMonth()+1}.${today.getFullYear()}`;
+    let todayKm = 0;
+    try {
+      const cpSnap = await db.collection('community_posts').get();
+      cpSnap.forEach(doc => {
+        const d = doc.data();
+        if (d.date === todayStr) todayKm += (d.totalKm || 0);
+      });
+    } catch(e) {}
+
+    // выводим
+    animateNum(document.getElementById('stUsers'), userCount);
+    animateNum(document.getElementById('stKm'), totalKm, 1);
+    animateNum(document.getElementById('stRuns'), totalRuns);
+    animateNum(document.getElementById('stZones'), zoneCount);
+    animateNum(document.getElementById('stArea'), totalArea, 1);
+    animateNum(document.getElementById('stToday'), todayKm, 1);
+    // дублируем в обложку (Hero)
+    const hU = document.getElementById('hUsers');
+    const hK = document.getElementById('hKm');
+    const hZ = document.getElementById('hZones');
+    if (hU) animateNum(hU, userCount);
+    if (hK) animateNum(hK, totalKm, 1);
+    if (hZ) animateNum(hZ, zoneCount);
+
+    statusEl.className = 'stats-status ok';
+    statusEl.innerHTML = '<span class="stats-live-dot"></span> Change your life bro, run with us!';
+  } catch (err) {
+    console.error('Firebase error:', err);
+    statusEl.className = 'stats-status err';
+    statusEl.innerHTML = '<span class="stats-live-dot"></span> Не удалось загрузить (проверь Firestore Rules → разреши read)';
+  }
+})();
+// ════ ФОРМА — двойная отправка (почта + telegram) ════
+const contactForm = document.getElementById('contactForm');
+const ffStatus = document.getElementById('ffStatus');
+const ffSubmit = document.getElementById('ffSubmit');
+
+const TG_TOKEN = '8870914646:AAEiQH6qi3FPuwIL360xprQhOG5DOIAhJ6g';
+const TG_CHAT = '-1004458834303';
+const W3F_KEY = '4b14a877-592f-4a70-83a3-141faced33e6';
+
+contactForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  ffSubmit.disabled = true;
+  ffStatus.className = 'ff-status';
+  ffStatus.textContent = 'Отправка...';
+
+  const fd = new FormData(contactForm);
+  const name = fd.get('name');
+  const email = fd.get('email');
+  const subject = fd.get('subject');
+  const message = fd.get('message');
+
+  let okMail = false, okTg = false;
+
+  // 1) Web3Forms → почта
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: W3F_KEY,
+        subject: `RunTech заявка: ${subject}`,
+        from_name: 'RunTech сайт',
+        name, email,
+        message: `Тема: ${subject}\nИмя: ${name}\nEmail: ${email}\n\nСообщение:\n${message}`
+      })
+    });
+    const j = await res.json();
+    okMail = j.success;
+  } catch (err) { console.error('mail err', err); }
+
+  // 2) Telegram → бот
+  try {
+    const text = `🔔 *Новая заявка RunTech*\n\n👤 *Имя:* ${name}\n📧 *Email:* ${email}\n📌 *Тема:* ${subject}\n\n💬 *Сообщение:*\n${message}`;
+    const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT, text, parse_mode: 'Markdown' })
+    });
+    const j = await res.json();
+    okTg = j.ok;
+  } catch (err) { console.error('tg err', err); }
+
+  if (okMail || okTg) {
+    ffStatus.className = 'ff-status ok';
+    ffStatus.textContent = '✓ Заявка отправлена! Мы скоро ответим.';
+    contactForm.reset();
+  } else {
+    ffStatus.className = 'ff-status err';
+    ffStatus.textContent = 'Ошибка отправки. Напиши напрямую на почту.';
+  }
+  ffSubmit.disabled = false;
+});
+</script>
+</body>
+</html>
