@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUNTECH — Privacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070b;--bg2:#0d0d14;--ink:#ffffff;--soft:rgba(255,255,255,.58);
+  --orange:#ff6b2b;--orange2:#ff3c00;--cyan:#00e5ff;--green:#2ecc71;--blue:#3a7bff;
+  --card:rgba(255,255,255,.035);--line:rgba(255,255,255,.09);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',sans-serif;
+  line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* moving cinematic atmosphere */
+.atmo{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;will-change:transform}
+.orb.a{width:600px;height:600px;background:radial-gradient(circle,rgba(255,107,43,.5),transparent 70%);top:-10%;left:-8%}
+.orb.b{width:680px;height:680px;background:radial-gradient(circle,rgba(0,229,255,.32),transparent 70%);top:35%;right:-12%}
+.orb.c{width:620px;height:620px;background:radial-gradient(circle,rgba(46,204,113,.28),transparent 70%);bottom:-8%;left:20%}
+.grain{position:fixed;inset:0;z-index:-1;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:linear-gradient(180deg,rgba(7,7,11,.2),rgba(7,7,11,.55))}
+
+#progress{position:fixed;top:0;left:0;height:3px;width:0%;z-index:100;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));box-shadow:0 0 14px rgba(255,107,43,.7)}
+
+.langbar{position:fixed;top:18px;right:18px;z-index:90;display:flex;gap:5px;
+  background:rgba(13,13,20,.6);backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:100px;padding:5px}
+.langbar button{font-family:'Space Grotesk';font-weight:600;font-size:.72rem;letter-spacing:.08em;
+  padding:8px 13px;border:none;border-radius:100px;cursor:pointer;background:transparent;
+  color:var(--soft);transition:.2s}
+.langbar button.active{background:var(--orange);color:#fff;box-shadow:0 6px 18px -4px rgba(255,107,43,.7)}
+.langbar button:hover:not(.active){color:#fff}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 26px}
+
+/* HERO */
+header{min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:120px 0 90px;position:relative;overflow:hidden}
+.eyebrow{font-size:12px;font-weight:500;letter-spacing:5px;text-transform:uppercase;
+  color:var(--orange);margin-bottom:22px;display:flex;align-items:center;gap:10px}
+.eyebrow .ln{width:40px;height:1px;background:var(--orange)}
+.h-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,20vw,15rem);line-height:.82;
+  letter-spacing:4px;will-change:transform,opacity}
+.h-title .o{color:var(--orange);position:relative;display:inline-block}
+.h-title .o::after{content:"";position:absolute;left:0;bottom:8px;width:100%;height:6px;
+  background:var(--orange);transform:scaleX(0);transform-origin:left;animation:ln 1s ease .8s forwards}
+@keyframes ln{to{transform:scaleX(1)}}
+.h-sub{margin-top:28px;font-size:clamp(1rem,2.3vw,1.3rem);font-weight:300;color:var(--soft);
+  max-width:600px;letter-spacing:.3px}
+.h-meta{margin-top:40px;display:flex;flex-wrap:wrap;gap:14px 32px;font-size:.85rem;
+  letter-spacing:1px;color:var(--soft);text-transform:uppercase}
+.h-meta b{color:#fff;font-weight:500}
+.scrollhint{position:absolute;bottom:34px;left:26px;font-size:11px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--soft);display:flex;align-items:center;gap:12px}
+.scrollhint::before{content:"";width:26px;height:26px;border-right:2px solid var(--orange);
+  border-bottom:2px solid var(--orange);transform:rotate(45deg);animation:bob 1.6s ease infinite}
+@keyframes bob{0%,100%{transform:rotate(45deg) translate(0,0);opacity:.5}50%{transform:rotate(45deg) translate(3px,3px);opacity:1}}
+
+/* SECTIONS */
+section{position:relative;padding:46px 0}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:26px;
+  padding:46px 48px;overflow:hidden;backdrop-filter:blur(6px);
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.8)}
+.card .ghost{position:absolute;right:24px;top:-30px;font-family:'Bebas Neue',sans-serif;
+  font-size:16rem;line-height:1;color:rgba(255,255,255,.03);pointer-events:none;
+  will-change:transform;z-index:0}
+.card .edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--orange)}
+.card>*{position:relative;z-index:1}
+.num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--orange)}
+h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);line-height:.98;
+  letter-spacing:1.5px;margin:6px 0 20px;color:#fff}
+p{color:var(--soft);margin-bottom:14px;font-weight:300;font-size:1.02rem}
+p strong{color:#fff;font-weight:500}
+ul{list-style:none;margin:10px 0 4px}
+li{position:relative;padding-left:28px;margin-bottom:12px;color:var(--soft);font-weight:300}
+li::before{content:"";position:absolute;left:0;top:11px;width:9px;height:9px;
+  background:var(--orange);border-radius:2px;transform:rotate(45deg);box-shadow:0 0 10px rgba(255,107,43,.6)}
+li b{color:#fff;font-weight:500}
+a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(0,229,255,.4)}
+
+/* accent hues per section */
+.hue-cyan .edge,.hue-cyan .num{background:var(--cyan);color:var(--cyan)}
+.hue-cyan li::before{background:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.6)}
+.hue-green .edge,.hue-green .num{background:var(--green);color:var(--green)}
+.hue-green li::before{background:var(--green);box-shadow:0 0 10px rgba(46,204,113,.6)}
+.hue-blue .edge,.hue-blue .num{background:var(--blue);color:var(--blue)}
+.hue-blue li::before{background:var(--blue);box-shadow:0 0 10px rgba(58,123,255,.6)}
+
+/* reveal / motion */
+.reveal{opacity:0;transform:translateY(46px);filter:blur(10px);
+  transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1),filter .9s}
+.reveal.in{opacity:1;transform:none;filter:blur(0)}
+
+/* contact */
+.contact{margin-top:36px;position:relative;border-radius:28px;overflow:hidden;
+  background:linear-gradient(135deg,#ff6b2b,#ff3c00);padding:56px 48px;text-align:center;
+  box-shadow:0 40px 90px -30px rgba(255,60,0,.7)}
+.contact h2{color:#fff}
+.contact p{color:rgba(255,255,255,.9)}
+.contact .mail{display:inline-block;margin-top:16px;font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.6rem,5vw,2.6rem);letter-spacing:2px;color:#fff;border:none}
+.contact .mail:hover{color:#0a0a0f}
+
+footer{text-align:center;padding:70px 26px 70px;position:relative}
+.f-logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:8px;color:#fff}
+.f-logo span{color:var(--orange)}
+.f-tag{color:var(--soft);letter-spacing:2px;text-transform:uppercase;font-size:.8rem;margin-top:8px}
+.back{display:inline-block;margin-top:26px;padding:15px 34px;border-radius:100px;
+  background:var(--orange);color:#fff;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  font-size:.8rem;border:none;box-shadow:0 14px 34px -10px rgba(255,107,43,.8)}
+.back:hover{background:var(--orange2)}
+.f-copy{margin-top:30px;color:rgba(255,255,255,.35);font-size:.8rem;letter-spacing:1px}
+
+@media(max-width:640px){.card{padding:34px 26px}.card .ghost{font-size:9rem;top:-10px}
+  header{padding:110px 0 70px}.langbar{top:12px;right:12px}}
+</style>
+</head>
+<body>
+<div class="atmo"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+<div class="grain"></div>
+<div id="progress"></div>
+
+<div class="langbar">
+  <button data-lang="en" class="active">EN</button>
+  <button data-lang="ru">RU</button>
+  <button data-lang="uz">UZ</button>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow"><span class="ln"></span><span data-i18n="badge"></span></div>
+    <div class="h-title" id="hTitle"><span data-i18n="h1a"></span> <span class="o" data-i18n="h1b"></span></div>
+    <p class="h-sub" data-i18n="lede"></p>
+    <div class="h-meta">
+      <span><span data-i18n="m_upd"></span> <b>01.07.2026</b></span>
+      <span><span data-i18n="m_app"></span> <b>Runtech</b></span>
+      <span><span data-i18n="m_con"></span> <b>runtech.app@gmail.com</b></span>
+    </div>
+  </div>
+  <div class="scrollhint" data-i18n="scroll"></div>
+</header>
+
+<div class="wrap">
+
+  <section class="reveal"><div class="card hue-cyan">
+    <div class="ghost" data-g>01</div><div class="edge"></div>
+    <span class="num" data-i18n="s1n"></span><h2 data-i18n="s1h"></h2>
+    <p data-i18n="s1p1"></p><p data-i18n="s1p2"></p><p data-i18n="s1p3"></p>
+  </div></section>
+
+  <section class="reveal"><div class="card">
+    <div class="ghost" data-g>02</div><div class="edge"></div>
+    <span class="num" data-i18n="s2n"></span><h2 data-i18n="s2h"></h2>
+    <p data-i18n="s2p1"></p>
+    <ul><li data-i18n="s2l1"></li><li data-i18n="s2l2"></li><li data-i18n="s2l3"></li>
+      <li data-i18n="s2l4"></li><li data-i18n="s2l5"></li><li data-i18n="s2l6"></li></ul>
+  </div></section>
+
+  <section class="reveal"><div class="card hue-green">
+    <div class="ghost" data-g>03</div><div class="edge"></div>
+    <span class="num" data-i18n="s3n"></span><h2 data-i18n="s3h"></h2>
+    <p data-i18n="s3p1"></p>
+    <ul><li data-i18n="s3l1"></li><li data-i18n="s3l2"></li><li data-i18n="s3l3"></li>
+      <li data-i18n="s3l4"></li><li data-i18n="s3l5"></li></ul>
+    <p data-i18n="s3p2"></p>
+  </div></section>
+
+  <section class="reveal"><div class="card hue-blue">
+    <div class="ghost" data-g>04</div><div class="edge"></div>
+    <span class="num" data-i18n="s4n"></span><h2 data-i18n="s4h"></h2>
+    <p data-i18n="s4p1"></p>
+    <ul><li data-i18n="s4l1"></li><li data-i18n="s4l2"></li><li data-i18n="s4l3"></li></ul>
+    <p data-i18n="s4p2"></p>
+  </div></section>
+
+  <section class="reveal"><div class="card">
+    <div class="ghost" data-g>05</div><div class="edge"></div>
+    <span class="num" data-i18n="s5n"></span><h2 data-i18n="s5h"></h2>
+    <p data-i18n="s5p1"></p>
+    <ul><li data-i18n="s5l1"></li><li data-i18n="s5l2"></li></ul>
+    <p data-i18n="s5p2"></p>
+  </div></section>
+
+  <section class="reveal"><div class="card hue-cyan">
+    <div class="ghost" data-g>06</div><div class="edge"></div>
+    <span class="num" data-i18n="s6n"></span><h2 data-i18n="s6h"></h2>
+    <p data-i18n="s6p1"></p>
+    <ul><li data-i18n="s6l1"></li><li data-i18n="s6l2"></li><li data-i18n="s6l3"></li></ul>
+  </div></section>
+
+  <section class="reveal"><div class="card hue-green">
+    <div class="ghost" data-g>07</div><div class="edge"></div>
+    <span class="num" data-i18n="s7n"></span><h2 data-i18n="s7h"></h2>
+    <p data-i18n="s7p1"></p>
+  </div></section>
+
+  <section class="reveal"><div class="card">
+    <div class="ghost" data-g>08</div><div class="edge"></div>
+    <span class="num" data-i18n="s8n"></span><h2 data-i18n="s8h"></h2>
+    <p data-i18n="s8p1"></p>
+  </div></section>
+
+  <section class="reveal"><div class="card hue-blue">
+    <div class="ghost" data-g>09</div><div class="edge"></div>
+    <span class="num" data-i18n="s9n"></span><h2 data-i18n="s9h"></h2>
+    <p data-i18n="s9p1"></p>
+  </div></section>
+
+  <div class="contact reveal">
+    <span class="num" style="color:#fff" data-i18n="s10n"></span>
+    <h2 data-i18n="s10h"></h2><p data-i18n="s10p1"></p>
+    <a class="mail" href="mailto:runtech.app@gmail.com">runtech.app@gmail.com</a>
+  </div>
+</div>
+
+<footer>
+  <div class="f-logo">RUN<span>TECH</span></div>
+  <div class="f-tag" data-i18n="f_tag"></div>
+  <div><a class="back" href="https://runtechapp.github.io/" data-i18n="f_back"></a></div>
+  <div class="f-copy" data-i18n="f_copy"></div>
+</footer>
+
+<script>
+/* ===== ПЕРЕВОДЫ (правим тексты тут) ===== */
+const T={
+ en:{badge:"Runtech · Privacy",h1a:"PRIVACY",h1b:"POLICY",
+  lede:"Your runs, your data, your control. Here is exactly what Runtech collects, why, and how we protect it — in plain language.",
+  scroll:"Scroll",m_upd:"Updated",m_app:"App",m_con:"Contact",
+  s1n:"01 — Introduction",s1h:"Who we are",
+  s1p1:"Runtech is a fitness application that turns running into a game: you run, capture GPS territories on the map, compete with other runners, and track your progress. This app is developed and operated by <strong>Runtech</strong> (\"we\", \"us\", \"our\"), based in Uzbekistan.",
+  s1p2:"We built Runtech from a genuine passion for running and self-improvement, and we respect your privacy the same way we respect your effort on the road. This Privacy Policy explains what personal data we collect, how we use it, who we share it with, and the rights you have over it.",
+  s1p3:"By creating an account and using Runtech, you agree to the practices described in this policy.",
+  s2n:"02 — Data we collect",s2h:"What information we collect",
+  s2p1:"To make Runtech work, we collect the following categories of data:",
+  s2l1:"<b>Account information</b> — when you sign in with Google, we receive your name, email address, and profile photo associated with your Google Account.",
+  s2l2:"<b>Location & GPS data</b> — while you run, the app records your route, distance, pace, speed, and the map territories you capture. Location is the core of the app and is collected during activity.",
+  s2l3:"<b>Activity & fitness data</b> — running statistics such as distance, duration, pace, calories, step count, and captured zones.",
+  s2l4:"<b>Photos you add</b> — if you attach a photo to a run or to your profile, that image is uploaded and stored so it can be shown in the app.",
+  s2l5:"<b>Social content</b> — your profile, posts, followers/following, and community activity that you choose to share inside the app.",
+  s2l6:"<b>Device & technical data</b> — basic technical information needed for the app to function and stay stable.",
+  s3n:"03 — How we use it",s3h:"Why we collect this data",
+  s3p1:"We use your data only to run and improve the app:",
+  s3l1:"To record your runs and draw the territories you capture on the map.",
+  s3l2:"To show your statistics, progress graphs, and running history.",
+  s3l3:"To power social features — profiles, followers, community, and the \"zone capture\" competition between runners.",
+  s3l4:"To keep your account secure and let you sign in across devices.",
+  s3l5:"To fix bugs, improve performance, and make the app better.",
+  s3p2:"We <strong>do not</strong> sell your personal data, and we do not use it for advertising.",
+  s4n:"04 — Storage & services",s4h:"Where your data is stored",
+  s4p1:"Runtech relies on trusted third-party services to store and process data securely:",
+  s4l1:"<b>Google Firebase</b> (Authentication, Cloud Firestore) — used to sign you in and to store your account, runs, zones, and social data, under Google's security and privacy standards.",
+  s4l2:"<b>Image hosting</b> — photos you add are uploaded to an image-hosting service so they can be displayed inside the app.",
+  s4l3:"<b>Google Sign-In</b> — used to authenticate you securely without us ever seeing your Google password.",
+  s4p2:"These providers process data on our behalf and are bound by their own privacy and security terms.",
+  s5n:"05 — Sharing",s5h:"What other people can see",
+  s5p1:"Runtech is a social app, so some information is visible to other users by design:",
+  s5l1:"Your <b>profile</b> (name, photo, stats) and the <b>territories you capture</b> are visible to other runners as part of the game.",
+  s5l2:"Content you post to the <b>community</b> is visible to other users.",
+  s5p2:"Beyond the app's own social features, we do not share your personal data with third parties, except when required by law or to protect the safety of our users.",
+  s6n:"06 — Your rights",s6h:"Control & deletion of your data",
+  s6p1:"Your data belongs to you. You can:",
+  s6l1:"<b>Access & update</b> your profile information at any time in the app.",
+  s6l2:"<b>Delete your account</b> — this removes your personal data, runs, zones, and social content from our systems.",
+  s6l3:"<b>Request removal</b> — if you need help deleting your data, contact us at the email below and we will act on your request.",
+  s7n:"07 — Security",s7h:"How we protect your data",
+  s7p1:"We use industry-standard measures provided by Google Firebase and secure authentication to protect your data against unauthorized access, loss, or misuse. While no online service can guarantee absolute security, we take reasonable steps to keep your information safe.",
+  s8n:"08 — Children",s8h:"Age of use",
+  s8p1:"Runtech is not directed at children under 13. We do not knowingly collect personal data from children under 13. If you believe a child has provided us with personal data, please contact us and we will delete it.",
+  s9n:"09 — Changes",s9h:"Updates to this policy",
+  s9p1:"We may update this Privacy Policy from time to time as the app evolves. When we do, we will revise the \"Updated\" date at the top of this page. Continued use of Runtech after changes means you accept the updated policy.",
+  s10n:"10 — Contact",s10h:"Questions? Reach out.",
+  s10p1:"If you have any questions about this Privacy Policy or your data, contact the developer directly:",
+  f_tag:"Run · Capture · Become better",f_back:"← Back to Runtech",f_copy:"© 2026 Runtech. All rights reserved."},
+ ru:{badge:"Runtech · Конфиденциальность",h1a:"ПОЛИТИКА",h1b:"ПРИВАТНОСТИ",
+  lede:"Твои пробежки, твои данные, твой контроль. Здесь честно и простым языком: что именно собирает Runtech, зачем и как мы это защищаем.",
+  scroll:"Листай",m_upd:"Обновлено",m_app:"Приложение",m_con:"Контакт",
+  s1n:"01 — Введение",s1h:"Кто мы",
+  s1p1:"Runtech — это фитнес-приложение, которое превращает бег в игру: ты бежишь, захватываешь GPS-территории на карте, соревнуешься с другими бегунами и отслеживаешь свой прогресс. Приложение разработано и поддерживается командой <strong>Runtech</strong> («мы», «нас», «наше»), находящейся в Узбекистане.",
+  s1p2:"Мы создали Runtech из настоящей любви к бегу и стремления становиться лучше — и мы уважаем твою приватность так же, как уважаем твой труд на дистанции. Эта Политика конфиденциальности объясняет, какие личные данные мы собираем, как используем, с кем делимся и какие права есть у тебя.",
+  s1p3:"Создавая аккаунт и пользуясь Runtech, ты соглашаешься с условиями, описанными в этой политике.",
+  s2n:"02 — Какие данные мы собираем",s2h:"Какую информацию мы собираем",
+  s2p1:"Чтобы Runtech работал, мы собираем следующие категории данных:",
+  s2l1:"<b>Данные аккаунта</b> — при входе через Google мы получаем твоё имя, адрес электронной почты и фото профиля, связанные с твоим аккаунтом Google.",
+  s2l2:"<b>Геолокация и GPS</b> — во время пробежки приложение записывает твой маршрут, дистанцию, темп, скорость и территории, которые ты захватываешь на карте. Геолокация — это сердце приложения, она собирается во время активности.",
+  s2l3:"<b>Данные о тренировках</b> — беговая статистика: дистанция, время, темп, калории, количество шагов и захваченные зоны.",
+  s2l4:"<b>Фотографии, которые ты добавляешь</b> — если ты прикрепляешь фото к пробежке или профилю, оно загружается и хранится, чтобы отображаться в приложении.",
+  s2l5:"<b>Социальный контент</b> — твой профиль, публикации, подписчики и подписки, активность в сообществе, которой ты делишься внутри приложения.",
+  s2l6:"<b>Данные об устройстве</b> — базовая техническая информация, необходимая для стабильной работы приложения.",
+  s3n:"03 — Как мы это используем",s3h:"Зачем мы собираем эти данные",
+  s3p1:"Мы используем твои данные только для работы и улучшения приложения:",
+  s3l1:"Чтобы записывать твои пробежки и рисовать захваченные территории на карте.",
+  s3l2:"Чтобы показывать твою статистику, графики прогресса и историю пробежек.",
+  s3l3:"Чтобы работали социальные функции — профили, подписки, сообщество и соревнование по «захвату зон» между бегунами.",
+  s3l4:"Чтобы защищать твой аккаунт и давать вход с разных устройств.",
+  s3l5:"Чтобы исправлять ошибки, улучшать производительность и делать приложение лучше.",
+  s3p2:"Мы <strong>не продаём</strong> твои личные данные и не используем их для рекламы.",
+  s4n:"04 — Хранение и сервисы",s4h:"Где хранятся твои данные",
+  s4p1:"Runtech использует надёжные сторонние сервисы для безопасного хранения и обработки данных:",
+  s4l1:"<b>Google Firebase</b> (Authentication, Cloud Firestore) — для входа и хранения твоего аккаунта, пробежек, зон и социальных данных, в соответствии со стандартами безопасности и конфиденциальности Google.",
+  s4l2:"<b>Хостинг изображений</b> — добавленные тобой фото загружаются в сервис хостинга изображений, чтобы отображаться в приложении.",
+  s4l3:"<b>Вход через Google</b> — для безопасной авторизации, при которой мы никогда не видим твой пароль от Google.",
+  s4p2:"Эти сервисы обрабатывают данные от нашего имени и связаны собственными условиями конфиденциальности и безопасности.",
+  s5n:"05 — Что видят другие",s5h:"Что могут видеть другие люди",
+  s5p1:"Runtech — социальное приложение, поэтому часть информации по задумке видна другим пользователям:",
+  s5l1:"Твой <b>профиль</b> (имя, фото, статистика) и <b>захваченные тобой территории</b> видны другим бегунам как часть игры.",
+  s5l2:"Контент, который ты публикуешь в <b>сообществе</b>, виден другим пользователям.",
+  s5p2:"За пределами социальных функций самого приложения мы не передаём твои личные данные третьим лицам, кроме случаев, предусмотренных законом или необходимых для защиты безопасности наших пользователей.",
+  s6n:"06 — Твои права",s6h:"Управление и удаление данных",
+  s6p1:"Твои данные принадлежат тебе. Ты можешь:",
+  s6l1:"<b>Смотреть и обновлять</b> информацию профиля в любой момент прямо в приложении.",
+  s6l2:"<b>Удалить свой аккаунт</b> — это удаляет твои личные данные, пробежки, зоны и социальный контент из наших систем.",
+  s6l3:"<b>Запросить удаление</b> — если нужна помощь с удалением данных, напиши нам на почту ниже, и мы выполним твой запрос.",
+  s7n:"07 — Безопасность",s7h:"Как мы защищаем твои данные",
+  s7p1:"Мы применяем стандартные отраслевые меры защиты, предоставляемые Google Firebase, и безопасную авторизацию, чтобы защитить твои данные от несанкционированного доступа, потери или неправомерного использования. Ни один онлайн-сервис не может гарантировать абсолютную безопасность, но мы принимаем разумные меры, чтобы сохранить твою информацию в безопасности.",
+  s8n:"08 — Дети",s8h:"Возраст использования",
+  s8p1:"Runtech не предназначен для детей младше 13 лет. Мы сознательно не собираем личные данные детей младше 13 лет. Если ты считаешь, что ребёнок предоставил нам личные данные, свяжись с нами, и мы их удалим.",
+  s9n:"09 — Изменения",s9h:"Обновления этой политики",
+  s9p1:"Мы можем время от времени обновлять эту Политику конфиденциальности по мере развития приложения. В таком случае мы обновим дату «Обновлено» в верхней части страницы. Продолжая пользоваться Runtech после изменений, ты принимаешь обновлённую политику.",
+  s10n:"10 — Контакт",s10h:"Есть вопросы? Напиши нам.",
+  s10p1:"Если у тебя есть вопросы об этой Политике конфиденциальности или о твоих данных — свяжись с разработчиком напрямую:",
+  f_tag:"Беги · Захватывай · Становись лучше",f_back:"← Назад на Runtech",f_copy:"© 2026 Runtech. Все права защищены."},
+ uz:{badge:"Runtech · Maxfiylik",h1a:"MAXFIYLIK",h1b:"SIYOSATI",
+  lede:"Sening yugurishlaring, sening ma'lumotlaring, sening nazoratingda. Bu yerda oddiy tilda: Runtech aynan nimani yig'adi, nima uchun va uni qanday himoya qilamiz.",
+  scroll:"Pastga",m_upd:"Yangilangan",m_app:"Ilova",m_con:"Aloqa",
+  s1n:"01 — Kirish",s1h:"Biz kimmiz",
+  s1p1:"Runtech — yugurishni o'yinga aylantiradigan fitnes ilovasi: sen yugurasan, xaritada GPS hududlarni egallaysan, boshqa yuguruvchilar bilan bellashasan va o'z natijalaringni kuzatasan. Ushbu ilova <strong>Runtech</strong> (\"biz\", \"bizning\") tomonidan ishlab chiqilgan va boshqariladi, O'zbekistonda joylashgan.",
+  s1p2:"Biz Runtech'ni yugurishga va o'zini rivojlantirishga bo'lgan chin muhabbatdan yaratdik va sening maxfiyligingni yo'lda qilgan mehnatingga bo'lgan hurmat kabi qadrlaymiz. Ushbu Maxfiylik siyosati qanday shaxsiy ma'lumotlarni yig'ishimizni, ulardan qanday foydalanishimizni, kim bilan bo'lishishimizni va sening qanday huquqlaring borligini tushuntiradi.",
+  s1p3:"Akkaunt yaratib va Runtech'dan foydalanib, sen ushbu siyosatda tasvirlangan shartlarga rozilik bildirasan.",
+  s2n:"02 — Yig'iladigan ma'lumotlar",s2h:"Qanday ma'lumotlarni yig'amiz",
+  s2p1:"Runtech ishlashi uchun biz quyidagi ma'lumot turlarini yig'amiz:",
+  s2l1:"<b>Akkaunt ma'lumotlari</b> — Google orqali kirganingda biz sening isming, elektron pochta manziling va Google akkauntingga bog'liq profil rasmingni olamiz.",
+  s2l2:"<b>Joylashuv va GPS</b> — yugurish paytida ilova sening marshrutingni, masofani, temp, tezlik va xaritada egallagan hududlaringni yozib boradi. Joylashuv — ilovaning yuragi, u faollik paytida yig'iladi.",
+  s2l3:"<b>Mashg'ulot ma'lumotlari</b> — yugurish statistikasi: masofa, vaqt, temp, kaloriya, qadamlar soni va egallangan hududlar.",
+  s2l4:"<b>Sen qo'shadigan rasmlar</b> — agar yugurishga yoki profilingga rasm biriktirsang, u yuklanadi va ilovada ko'rsatilishi uchun saqlanadi.",
+  s2l5:"<b>Ijtimoiy kontent</b> — sening profiling, postlaring, obunachilaring va obunalaring, hamda ilova ichida bo'lishadigan hamjamiyat faoliyating.",
+  s2l6:"<b>Qurilma ma'lumotlari</b> — ilovaning barqaror ishlashi uchun zarur bo'lgan asosiy texnik ma'lumot.",
+  s3n:"03 — Qanday foydalanamiz",s3h:"Bu ma'lumotlarni nima uchun yig'amiz",
+  s3p1:"Biz sening ma'lumotlaringdan faqat ilovani ishlatish va yaxshilash uchun foydalanamiz:",
+  s3l1:"Yugurishlaringni yozib borish va xaritada egallagan hududlaringni chizish uchun.",
+  s3l2:"Statistikang, natija grafiklaring va yugurish tarixingni ko'rsatish uchun.",
+  s3l3:"Ijtimoiy funksiyalar — profillar, obunalar, hamjamiyat va yuguruvchilar o'rtasidagi \"hudud egallash\" bellashuvi ishlashi uchun.",
+  s3l4:"Akkauntingni himoya qilish va turli qurilmalardan kirish imkonini berish uchun.",
+  s3l5:"Xatolarni tuzatish, ishlashni yaxshilash va ilovani mukammallashtirish uchun.",
+  s3p2:"Biz sening shaxsiy ma'lumotlaringni <strong>sotmaymiz</strong> va reklama uchun ishlatmaymiz.",
+  s4n:"04 — Saqlash va xizmatlar",s4h:"Ma'lumotlaring qayerda saqlanadi",
+  s4p1:"Runtech ma'lumotlarni xavfsiz saqlash va qayta ishlash uchun ishonchli uchinchi tomon xizmatlaridan foydalanadi:",
+  s4l1:"<b>Google Firebase</b> (Authentication, Cloud Firestore) — kirish va sening akkaunting, yugurishlaring, hududlaring hamda ijtimoiy ma'lumotlaringni Google xavfsizlik standartlari asosida saqlash uchun.",
+  s4l2:"<b>Rasm hostingi</b> — qo'shgan rasmlaring ilovada ko'rsatilishi uchun rasm hosting xizmatiga yuklanadi.",
+  s4l3:"<b>Google orqali kirish</b> — biz hech qachon sening Google parolingni ko'rmasdan xavfsiz avtorizatsiya qilish uchun.",
+  s4p2:"Ushbu xizmatlar ma'lumotlarni bizning nomimizdan qayta ishlaydi va o'zlarining maxfiylik hamda xavfsizlik shartlariga bog'liq.",
+  s5n:"05 — Boshqalar nimani ko'radi",s5h:"Boshqa odamlar nimani ko'ra oladi",
+  s5p1:"Runtech — ijtimoiy ilova, shuning uchun ba'zi ma'lumotlar rejaga ko'ra boshqa foydalanuvchilarga ko'rinadi:",
+  s5l1:"Sening <b>profiling</b> (ism, rasm, statistika) va <b>egallagan hududlaring</b> o'yin qismi sifatida boshqa yuguruvchilarga ko'rinadi.",
+  s5l2:"<b>Hamjamiyatga</b> joylagan kontenting boshqa foydalanuvchilarga ko'rinadi.",
+  s5p2:"Ilovaning o'z ijtimoiy funksiyalaridan tashqari, biz sening shaxsiy ma'lumotlaringni uchinchi shaxslarga bermaymiz, qonun talab qilgan yoki foydalanuvchilar xavfsizligini himoya qilish zarur bo'lgan hollardan tashqari.",
+  s6n:"06 — Sening huquqlaring",s6h:"Ma'lumotlarni boshqarish va o'chirish",
+  s6p1:"Ma'lumotlaring senga tegishli. Sen:",
+  s6l1:"Profil ma'lumotlaringni istalgan vaqtda ilovada <b>ko'rish va yangilash</b> mumkin.",
+  s6l2:"<b>Akkauntingni o'chirish</b> — bu sening shaxsiy ma'lumotlaring, yugurishlaring, hududlaring va ijtimoiy kontentingni tizimlarimizdan o'chiradi.",
+  s6l3:"<b>O'chirishni so'rash</b> — ma'lumotlaringni o'chirishga yordam kerak bo'lsa, quyidagi pochtaga yoz, biz so'rovingni bajaramiz.",
+  s7n:"07 — Xavfsizlik",s7h:"Ma'lumotlaringni qanday himoya qilamiz",
+  s7p1:"Biz sening ma'lumotlaringni ruxsatsiz kirish, yo'qotish yoki noto'g'ri foydalanishdan himoya qilish uchun Google Firebase taqdim etadigan sanoat standartidagi choralar va xavfsiz avtorizatsiyadan foydalanamiz. Hech bir onlayn xizmat mutlaq xavfsizlikni kafolatlay olmaydi, ammo biz ma'lumotlaringni xavfsiz saqlash uchun oqilona choralar ko'ramiz.",
+  s8n:"08 — Bolalar",s8h:"Foydalanish yoshi",
+  s8p1:"Runtech 13 yoshgacha bo'lgan bolalar uchun mo'ljallanmagan. Biz 13 yoshgacha bo'lgan bolalarning shaxsiy ma'lumotlarini bila turib yig'maymiz. Agar bola bizga shaxsiy ma'lumot bergan deb hisoblasang, biz bilan bog'lan, biz uni o'chiramiz.",
+  s9n:"09 — O'zgarishlar",s9h:"Ushbu siyosat yangilanishlari",
+  s9p1:"Ilova rivojlanishi bilan biz ushbu Maxfiylik siyosatini vaqti-vaqti bilan yangilashimiz mumkin. Bunday holda biz sahifaning yuqorisidagi \"Yangilangan\" sanasini yangilaymiz. O'zgarishlardan keyin Runtech'dan foydalanishni davom ettirish yangilangan siyosatni qabul qilganingni bildiradi.",
+  s10n:"10 — Aloqa",s10h:"Savollaring bormi? Bog'lan.",
+  s10p1:"Ushbu Maxfiylik siyosati yoki ma'lumotlaring haqida savoling bo'lsa, ishlab chiquvchi bilan to'g'ridan-to'g'ri bog'lan:",
+  f_tag:"Yugur · Egalla · Yaxshiroq bo'l",f_back:"← Runtech'ga qaytish",f_copy:"© 2026 Runtech. Barcha huquqlar himoyalangan."}
+};
+
+function setLang(l){
+  document.documentElement.lang=l;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');
+    if(T[l]&&T[l][k]!==undefined)e.innerHTML=T[l][k];});
+  document.querySelectorAll('.langbar button').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));
+}
+document.querySelectorAll('.langbar button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+setLang('en');
+
+/* progress + hero zoom + parallax montage */
+const bar=document.getElementById('progress'), hTitle=document.getElementById('hTitle');
+const orbA=document.querySelector('.orb.a'),orbB=document.querySelector('.orb.b'),orbC=document.querySelector('.orb.c');
+const ghosts=[...document.querySelectorAll('[data-g]')];
+addEventListener('scroll',()=>{
+  const y=scrollY, h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(y/h*100)+'%';
+  const p=Math.min(y/innerHeight,1);
+  hTitle.style.transform=`scale(${1+p*.6}) translateY(${p*40}px)`;
+  hTitle.style.opacity=Math.max(0,1-p*1.3);
+  orbA.style.transform=`translateY(${y*.12}px)`;
+  orbB.style.transform=`translateY(${-y*.08}px)`;
+  orbC.style.transform=`translateY(${y*.05}px)`;
+  ghosts.forEach(g=>{const r=g.getBoundingClientRect();
+    g.style.transform=`translateY(${(r.top-innerHeight/2)*-0.06}px)`;});
+},{passive:true});
+
+/* reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
